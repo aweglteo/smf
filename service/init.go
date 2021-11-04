@@ -6,6 +6,9 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+	"log"
+	"net/http"
+	_ "net/http/pprof"
 
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
@@ -249,6 +252,11 @@ func (smf *SMF) Start() {
 	context.InitSMFUERouting(&factory.UERoutingConfig)
 
 	initLog.Infoln("Server started")
+
+	go func() {
+		log.Println(http.ListenAndServe("localhost:6061", nil))
+	}()
+
 	router := logger_util.NewGinWithLogrus(logger.GinLog)
 
 	err := consumer.SendNFRegistration()
